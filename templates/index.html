@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senibot (시니봇)</title>
+    <script>
+        var TextareaHeight = 32;
+
+        async function sendMessage() {
+            const userMessage = document.getElementById('message').value;
+            appendMessage('user', userMessage);
+            const response = await fetch('/webhook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    queryResult: {
+                        queryText: userMessage
+                    }
+                })
+            });
+            const data = await response.json();
+            appendMessage('bot', data.fulfillmentText);
+            document.getElementById('message').value = ''; // Clear the input
+        }
+
+        function appendMessage(sender, message) {
+            const chatLog = document.getElementById('chat-log');
+            
+            // Create the container div for the message
+            const messageContainer = document.createElement('div');
+            
+            // Create the prefix span (Q: or A:)
+            const prefix = document.createElement('div');
+            
+            // Create the message div
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message'; // Common class for both user and bot messages
+            
+            // Set classes and content based on sender
+            if (sender === 'user') {
+                messageContainer.className = 'user-message-container';
+                prefix.className = 'user-prefix';
+                prefix.innerText = 'Q';
+            } else {
+                messageContainer.className = 'bot-message-container';
+                prefix.className = 'bot-prefix';
+                prefix.innerText = 'A';
+            }
+            
+            messageDiv.innerText = message;
+            
+            // Append the prefix and message to the container
+            messageContainer.appendChild(prefix);
+            messageContainer.appendChild(messageDiv);
+            
+            // Append the container to the chat log
+            chatLog.appendChild(messageContainer);
+            
+            // Scroll to the bottom of the chat log
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function autoResize(textarea) {
+            if(textarea.scrollHeight < window.innerHeight / 3) {
+                textarea.style.height = '32px';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+            }
+        }
+
+        function autoResizeB(textarea) {
+            if(textarea.scrollHeight < window.innerHeight / 2) {
+                textarea.style.height = '36px';
+                textarea.style.height = `${textarea.scrollHeight * 2}px`;
+            }
+        }
+
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
+</head>
+<body>
+    <div class="chatbot-title2"><h1 class="chatbot-title">Senibot</h1></div>
+    <div id="chat-log" class="chat-log"></div>
+    <footer class="input-area2">
+        <div class="input-area" onkeypress="autoResizeB(this)">
+            <textarea id="message" placeholder="메시지 입력..." onkeypress="autoResize(this)"></textarea>
+            <div style="width: 1.5%;"></div>
+            <button class="send-button" onclick="sendMessage()"><img class="sendimage" src="/static/images/send.png" width="18"></button>
+        </div>
+    </footer>
+</body>
+</html>
