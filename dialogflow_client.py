@@ -1,5 +1,6 @@
 from google.cloud import dialogflow
 import os
+import json
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "credentials.json"
 credentials_info = json.loads(os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON'))
